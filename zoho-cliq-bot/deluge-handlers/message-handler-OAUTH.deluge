@@ -1,0 +1,46 @@
+// Message Handler - OAuth Version (No Token Required!)
+msgLower = message.toLowerCase().trim();
+response = Map();
+
+if(msgLower.contains("start"))
+{
+    response.put("text", "🎨 **PixelCheck - Let's Analyze!**\n\nProvide your Figma URLs in this format:\n\n```\nandroid: YOUR_ANDROID_URL\nios: YOUR_IOS_URL\nweb: YOUR_WEB_URL\n```\n\n**No token needed!** OAuth is configured on the server.");
+    return response;
+}
+else if(msgLower.contains("android:") && msgLower.contains("ios:") && msgLower.contains("web:"))
+{
+    // User provided URLs - send to server (no token needed!)
+    serverUrl = "https://nonchivalrous-paranoidly-cara.ngrok-free.dev/bot/parse-and-analyze";
+    
+    headers = Map();
+    headers.put("Content-Type", "application/json");
+    
+    payload = Map();
+    payload.put("message", message);
+    payload.put("user_id", user.get("id"));
+    payload.put("chat_id", chat.get("id"));
+    
+    try
+    {
+        serverResponse = invokeurl
+        [
+            url: serverUrl
+            type: POST
+            parameters: payload
+            headers: headers
+        ];
+        
+        return serverResponse;
+    }
+    catch (e)
+    {
+        response.put("text", "❌ Error: " + e);
+        return response;
+    }
+}
+else
+{
+    response.put("text", "Hi! 👋 Type **start** to begin!");
+}
+
+return response;

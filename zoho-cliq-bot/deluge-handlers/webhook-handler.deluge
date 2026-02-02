@@ -1,0 +1,23 @@
+// Incoming Webhook Handler - Main handler for bot functionality
+// This connects to your Node.js server
+
+// Get the incoming request data (cRequest is the correct variable in Zoho Cliq)
+requestBody = cRequest.get("body");
+
+// Route to your Node.js server
+webhookUrl = "YOUR_WEBHOOK_URL/bot/function";
+
+headers = Map();
+headers.put("Content-Type", "application/json");
+
+// Forward the request to your server
+webhookResponse = invokeurl
+[
+    url: webhookUrl
+    type: POST
+    parameters: requestBody
+    headers: headers
+];
+
+// Return the response from your server
+return webhookResponse;

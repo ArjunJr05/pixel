@@ -1,0 +1,68 @@
+// Message Handler - Calls Deluge Function to Fetch Figma Data
+msgLower = message.toLowerCase().trim();
+response = Map();
+
+if(msgLower.contains("start"))
+{
+    response.put("text", "PixelCheck - Let's Analyze!\n\nProvide your Figma URLs:\n\nandroid: YOUR_ANDROID_URL\nios: YOUR_IOS_URL\nweb: YOUR_WEB_URL\n\nNo token needed!");
+    return response;
+}
+else if(msgLower.contains("android:") && msgLower.contains("ios:"))
+{
+    // Send to server to parse URLs and extract file keys
+    serverUrl = "https://nonchivalrous-paranoidly-cara.ngrok-free.dev/bot/parse-urls";
+    
+    headers = Map();
+    headers.put("Content-Type", "application/json");
+    
+    payload = Map();
+    payload.put("message", message);
+    payload.put("user_id", user.get("id"));
+    payload.put("chat_id", chat.get("id"));
+    
+    try
+    {
+        // Server parses URLs and returns file keys
+        parseResponse = invokeurl
+        [
+            url: serverUrl
+            type: POST
+            parameters: payload.toString()
+            headers: headers
+        ];
+        
+        // Check if parsing was successful
+        if(parseResponse.get("success") == true)
+        {
+            // Call Deluge function to fetch Figma data
+            result = pixelcheck.fetchFigmaDesigns(
+                parseResponse.get("android_key"),
+                parseResponse.get("ios_key"),
+                parseResponse.get("web_key"),
+                user.get("id"),
+                chat.get("id")
+            );
+            
+            return result;
+        }
+        else
+        {
+            return parseResponse;
+        }
+    }
+    catch (e)
+    {
+        response.put("text", "Error: " + e);
+        return response;
+    }
+}
+else if(msgLower.equals("help"))
+{
+    response.put("text", "PixelCheck Bot Help\n\nCommands:\n- start: Begin analysis\n- help: Show this message\n\nHow to use:\n1. Type 'start'\n2. Paste your Figma URLs\n3. Get instant analysis!");
+}
+else
+{
+    response.put("text", "Hi! Type 'start' to begin analysis!");
+}
+
+return response;

@@ -1,0 +1,49 @@
+// Message Handler - Updated with chat_id for progress messages
+msgLower = message.toLowerCase().trim();
+response = Map();
+
+if(msgLower.contains("start"))
+{
+    response.put("text", "🎨 **PixelCheck - Let's Analyze!**\n\nProvide your details in this format:\n\n```\ntoken: YOUR_FIGMA_TOKEN\nandroid: ANDROID_URL\nios: IOS_URL\nweb: WEB_URL\n```\n\nType **token** to learn how to get your Figma access token.");
+    return response;
+}
+else if(msgLower.contains("token:") && msgLower.contains("android:"))
+{
+    // User provided data - send entire message to server to parse
+    serverUrl = "https://nonchivalrous-paranoidly-cara.ngrok-free.dev/bot/parse-and-analyze";
+    
+    headers = Map();
+    headers.put("Content-Type", "application/json");
+    
+    payload = Map();
+    payload.put("message", message);
+    payload.put("user_id", user.get("id"));
+    payload.put("chat_id", chat.get("id"));  // ✅ ADDED: For progress messages
+    
+    try
+    {
+        serverResponse = invokeurl
+        [
+            url: serverUrl
+            type: POST
+            parameters: payload
+            headers: headers
+        ];
+        
+        response = serverResponse;
+    }
+    catch (e)
+    {
+        response.put("text", "❌ Error: " + e);
+    }
+}
+else if(msgLower.equals("token"))
+{
+    response.put("text", "🔑 **How to get Figma Access Token:**\n\n1. Go to Figma.com\n2. Click Settings\n3. Scroll to 'Personal Access Tokens'\n4. Click 'Generate new token'\n5. Copy the token");
+}
+else
+{
+    response.put("text", "Hi! 👋 Type **start** to begin!");
+}
+
+return response;

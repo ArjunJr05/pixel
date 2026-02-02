@@ -1,0 +1,50 @@
+// Deluge Function: fetchFigmaDesigns
+// This function fetches Figma designs using the connection
+// Parameters: androidFileKey, iosFileKey, webFileKey, userId, chatId
+
+// Fetch Android design
+androidResponse = invokeurl
+[
+    url: "https://api.figma.com/v1/files/" + androidFileKey
+    type: GET
+    connection: "figmaapi"
+];
+
+// Fetch iOS design
+iosResponse = invokeurl
+[
+    url: "https://api.figma.com/v1/files/" + iosFileKey
+    type: GET
+    connection: "figmaapi"
+];
+
+// Fetch Web design
+webResponse = invokeurl
+[
+    url: "https://api.figma.com/v1/files/" + webFileKey
+    type: GET
+    connection: "figmaapi"
+];
+
+// Send to server for analysis
+serverUrl = "https://nonchivalrous-paranoidly-cara.ngrok-free.dev/bot/analyze-designs";
+
+headers = Map();
+headers.put("Content-Type", "application/json");
+
+payload = Map();
+payload.put("android_data", androidResponse);
+payload.put("ios_data", iosResponse);
+payload.put("web_data", webResponse);
+payload.put("user_id", userId);
+payload.put("chat_id", chatId);
+
+serverResponse = invokeurl
+[
+    url: serverUrl
+    type: POST
+    parameters: payload.toString()
+    headers: headers
+];
+
+return serverResponse;

@@ -1,0 +1,170 @@
+// Message Handler - All-in-One (No Separate Function Needed)
+// This version does everything in the message handler
+
+msgLower = message.toLowerCase().trim();
+response = Map();
+
+if(msgLower.contains("start"))
+{
+    response.put("text", "PixelCheck - Let's Analyze!\n\nProvide your Figma URLs:\n\nandroid: YOUR_ANDROID_URL\nios: YOUR_IOS_URL\nweb: YOUR_WEB_URL\n\nNo token needed!");
+    return response;
+}
+else if(msgLower.contains("android:") && msgLower.contains("ios:") && msgLower.contains("web:"))
+{
+    // Extract URLs from message
+    androidUrl = "";
+    iosUrl = "";
+    webUrl = "";
+    
+    // Find android URL
+    if(message.contains("android:"))
+    {
+        startPos = message.indexOf("android:") + 8;
+        endPos = message.indexOf("\n", startPos);
+        if(endPos == -1)
+        {
+            endPos = message.length();
+        }
+        androidUrl = message.substring(startPos, endPos).trim();
+    }
+    
+    // Find ios URL
+    if(message.contains("ios:"))
+    {
+        startPos = message.indexOf("ios:") + 4;
+        endPos = message.indexOf("\n", startPos);
+        if(endPos == -1)
+        {
+            endPos = message.length();
+        }
+        iosUrl = message.substring(startPos, endPos).trim();
+    }
+    
+    // Find web URL
+    if(message.contains("web:"))
+    {
+        startPos = message.indexOf("web:") + 4;
+        endPos = message.indexOf("\n", startPos);
+        if(endPos == -1)
+        {
+            endPos = message.length();
+        }
+        webUrl = message.substring(startPos, endPos).trim();
+    }
+    
+    // Validate URLs
+    if(androidUrl == "" || iosUrl == "" || webUrl == "")
+    {
+        response.put("text", "Please provide all three URLs!");
+        return response;
+    }
+    
+    try
+    {
+        // Extract file keys
+        if(androidUrl.contains("/design/"))
+        {
+            startPos = androidUrl.indexOf("/design/") + 8;
+            endPos = androidUrl.indexOf("/", startPos);
+            if(endPos == -1)
+            {
+                endPos = androidUrl.indexOf("?", startPos);
+            }
+            if(endPos == -1)
+            {
+                endPos = androidUrl.length();
+            }
+            androidKey = androidUrl.substring(startPos, endPos);
+        }
+        
+        if(iosUrl.contains("/design/"))
+        {
+            startPos = iosUrl.indexOf("/design/") + 8;
+            endPos = iosUrl.indexOf("/", startPos);
+            if(endPos == -1)
+            {
+                endPos = iosUrl.indexOf("?", startPos);
+            }
+            if(endPos == -1)
+            {
+                endPos = iosUrl.length();
+            }
+            iosKey = iosUrl.substring(startPos, endPos);
+        }
+        
+        if(webUrl.contains("/design/"))
+        {
+            startPos = webUrl.indexOf("/design/") + 8;
+            endPos = webUrl.indexOf("/", startPos);
+            if(endPos == -1)
+            {
+                endPos = webUrl.indexOf("?", startPos);
+            }
+            if(endPos == -1)
+            {
+                endPos = webUrl.length();
+            }
+            webKey = webUrl.substring(startPos, endPos);
+        }
+        
+        // Fetch from Figma using connection
+        androidData = invokeurl
+        [
+            url: "https://api.figma.com/v1/files/" + androidKey
+            type: GET
+            connection: "figmaapi"
+        ];
+        
+        iosData = invokeurl
+        [
+            url: "https://api.figma.com/v1/files/" + iosKey
+            type: GET
+            connection: "figmaapi"
+        ];
+        
+        webData = invokeurl
+        [
+            url: "https://api.figma.com/v1/files/" + webKey
+            type: GET
+            connection: "figmaapi"
+        ];
+        
+        // Send to server for analysis
+        serverUrl = "https://nonchivalrous-paranoidly-cara.ngrok-free.dev/bot/analyze-designs";
+        
+        headers = Map();
+        headers.put("Content-Type", "application/json");
+        
+        payload = Map();
+        payload.put("android_data", androidData);
+        payload.put("ios_data", iosData);
+        payload.put("web_data", webData);
+        payload.put("user_id", user.get("id"));
+        payload.put("chat_id", chat.get("id"));
+        
+        result = invokeurl
+        [
+            url: serverUrl
+            type: POST
+            parameters: payload.toString()
+            headers: headers
+        ];
+        
+        return result;
+    }
+    catch (e)
+    {
+        response.put("text", "Error: " + e);
+        return response;
+    }
+}
+else if(msgLower.equals("help"))
+{
+    response.put("text", "PixelCheck Bot\n\nCommands:\n- start: Begin analysis\n- help: Show this\n\nProvide 3 Figma URLs to analyze!");
+}
+else
+{
+    response.put("text", "Hi! Type 'start' to begin!");
+}
+
+return response;

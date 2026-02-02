@@ -1,0 +1,51 @@
+// Message Handler - Simplified (No Function Call)
+// This version sends everything to the server
+msgLower = message.toLowerCase().trim();
+response = Map();
+
+if(msgLower.contains("start"))
+{
+    response.put("text", "PixelCheck - Let's Analyze!\n\nProvide your Figma URLs:\n\nandroid: YOUR_URL\nios: YOUR_URL\nweb: YOUR_URL\n\nNo token needed!");
+    return response;
+}
+else if(msgLower.contains("android:") && msgLower.contains("ios:"))
+{
+    // Send message to server - server will handle everything
+    serverUrl = "https://nonchivalrous-paranoidly-cara.ngrok-free.dev/bot/analyze-with-connection";
+    
+    headers = Map();
+    headers.put("Content-Type", "application/json");
+    
+    payload = Map();
+    payload.put("message", message);
+    payload.put("user_id", user.get("id"));
+    payload.put("chat_id", chat.get("id"));
+    
+    try
+    {
+        serverResponse = invokeurl
+        [
+            url: serverUrl
+            type: POST
+            parameters: payload.toString()
+            headers: headers
+        ];
+        
+        return serverResponse;
+    }
+    catch (e)
+    {
+        response.put("text", "Error: " + e);
+        return response;
+    }
+}
+else if(msgLower.equals("help"))
+{
+    response.put("text", "PixelCheck Bot Help\n\nCommands:\n- start: Begin analysis\n- help: Show this message\n\nHow to use:\n1. Type 'start'\n2. Paste your Figma URLs\n3. Get instant analysis!");
+}
+else
+{
+    response.put("text", "Hi! Type 'start' to begin!");
+}
+
+return response;

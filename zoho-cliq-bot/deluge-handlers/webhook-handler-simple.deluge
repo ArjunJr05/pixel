@@ -1,0 +1,7 @@
+// Simplified Incoming Webhook Handler
+// This is called when external services send data to your bot
+
+// Simply acknowledge the webhook
+response = Map();
+response.put("text", "Webhook received");
+return response;

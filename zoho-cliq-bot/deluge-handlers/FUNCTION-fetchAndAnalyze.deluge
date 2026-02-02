@@ -1,0 +1,95 @@
+// STEP 1: Create this as a FUNCTION in Zoho Cliq Bot
+// Function Name: fetchAndAnalyze
+// Parameters: androidUrl, iosUrl, webUrl, userId, chatId
+
+// Extract file keys from URLs
+extractKey = "";
+if(androidUrl.contains("/design/"))
+{
+    startPos = androidUrl.indexOf("/design/") + 8;
+    endPos = androidUrl.indexOf("/", startPos);
+    if(endPos == -1)
+    {
+        endPos = androidUrl.indexOf("?", startPos);
+    }
+    if(endPos == -1)
+    {
+        endPos = androidUrl.length();
+    }
+    androidKey = androidUrl.substring(startPos, endPos);
+}
+
+if(iosUrl.contains("/design/"))
+{
+    startPos = iosUrl.indexOf("/design/") + 8;
+    endPos = iosUrl.indexOf("/", startPos);
+    if(endPos == -1)
+    {
+        endPos = iosUrl.indexOf("?", startPos);
+    }
+    if(endPos == -1)
+    {
+        endPos = iosUrl.length();
+    }
+    iosKey = iosUrl.substring(startPos, endPos);
+}
+
+if(webUrl.contains("/design/"))
+{
+    startPos = webUrl.indexOf("/design/") + 8;
+    endPos = webUrl.indexOf("/", startPos);
+    if(endPos == -1)
+    {
+        endPos = webUrl.indexOf("?", startPos);
+    }
+    if(endPos == -1)
+    {
+        endPos = webUrl.length();
+    }
+    webKey = webUrl.substring(startPos, endPos);
+}
+
+// Fetch from Figma using connection
+androidData = invokeurl
+[
+    url: "https://api.figma.com/v1/files/" + androidKey
+    type: GET
+    connection: "figmaapi"
+];
+
+iosData = invokeurl
+[
+    url: "https://api.figma.com/v1/files/" + iosKey
+    type: GET
+    connection: "figmaapi"
+];
+
+webData = invokeurl
+[
+    url: "https://api.figma.com/v1/files/" + webKey
+    type: GET
+    connection: "figmaapi"
+];
+
+// Send to server for analysis
+serverUrl = "https://nonchivalrous-paranoidly-cara.ngrok-free.dev/bot/analyze-designs";
+
+headers = Map();
+headers.put("Content-Type", "application/json");
+
+payload = Map();
+payload.put("android_data", androidData);
+payload.put("ios_data", iosData);
+payload.put("web_data", webData);
+payload.put("user_id", userId);
+payload.put("chat_id", chatId);
+
+result = invokeurl
+[
+    url: serverUrl
+    type: POST
+    parameters: payload.toString()
+    headers: headers
+];
+
+return result;

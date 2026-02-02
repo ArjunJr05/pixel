@@ -1,0 +1,109 @@
+// Message Handler - Responds to user messages
+// Handles commands like "start", "help", "status", "reset"
+
+message = message.get("text").toLowerCase().trim();
+user = user.get("id");
+
+response = Map();
+
+// Handle different commands
+if(message.contains("start") || message.contains("begin"))
+{
+    // Call webhook to start analysis
+    webhookUrl = "YOUR_WEBHOOK_URL/bot/message";
+    
+    headers = Map();
+    headers.put("Content-Type", "application/json");
+    
+    payload = Map();
+    payload.put("text", "start");
+    payload.put("user", user);
+    
+    webhookResponse = invokeurl
+    [
+        url: webhookUrl
+        type: POST
+        parameters: payload.toString()
+        headers: headers
+    ];
+    
+    return webhookResponse;
+}
+else if(message.contains("help"))
+{
+    card = {
+        "title": "📚 PixelCheck Bot - Help",
+        "theme": "modern-inline",
+        "sections": [
+            {
+                "type": "text",
+                "text": "**Available Commands:**"
+            },
+            {
+                "type": "text",
+                "text": "• **start** - Begin a new design analysis\n• **help** - Show this help message\n• **status** - Check upload progress\n• **reset** - Start over with new files"
+            },
+            {
+                "type": "divider"
+            },
+            {
+                "type": "text",
+                "text": "**How it works:**\n1. Upload JSON files from Figma for each platform (Android, iOS, Web)\n2. The bot analyzes design consistency\n3. View results in the chat\n4. Download a detailed PDF report"
+            }
+        ]
+    };
+    
+    response.put("text", "Here's how to use PixelCheck Bot:");
+    response.put("card", card);
+    
+    return response;
+}
+else if(message.contains("status"))
+{
+    // Call webhook to check status
+    webhookUrl = "YOUR_WEBHOOK_URL/bot/message";
+    
+    headers = Map();
+    headers.put("Content-Type", "application/json");
+    
+    payload = Map();
+    payload.put("text", "status");
+    payload.put("user", user);
+    
+    webhookResponse = invokeurl
+    [
+        url: webhookUrl
+        type: POST
+        parameters: payload.toString()
+        headers: headers
+    ];
+    
+    return webhookResponse;
+}
+else if(message.contains("reset"))
+{
+    // Call webhook to reset session
+    webhookUrl = "YOUR_WEBHOOK_URL/bot/message";
+    
+    headers = Map();
+    headers.put("Content-Type", "application/json");
+    
+    payload = Map();
+    payload.put("text", "reset");
+    payload.put("user", user);
+    
+    webhookResponse = invokeurl
+    [
+        url: webhookUrl
+        type: POST
+        parameters: payload.toString()
+        headers: headers
+    ];
+    
+    return webhookResponse;
+}
+else
+{
+    response.put("text", "I didn't understand that. Type **help** for available commands or **start** to begin analysis.");
+    return response;
+}

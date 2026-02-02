@@ -1,0 +1,83 @@
+// STEP 2: Use this as MESSAGE HANDLER in Zoho Cliq Bot
+// This calls the function above
+
+msgLower = message.toLowerCase().trim();
+response = Map();
+
+if(msgLower.contains("start"))
+{
+    response.put("text", "PixelCheck - Let's Analyze!\n\nProvide your Figma URLs (no token needed!):\n\nandroid: YOUR_ANDROID_URL\nios: YOUR_IOS_URL\nweb: YOUR_WEB_URL");
+    return response;
+}
+else if(msgLower.contains("android:") && msgLower.contains("ios:") && msgLower.contains("web:"))
+{
+    // Extract URLs from message
+    androidUrl = "";
+    iosUrl = "";
+    webUrl = "";
+    
+    // Find android URL
+    if(message.contains("android:"))
+    {
+        startPos = message.indexOf("android:") + 8;
+        endPos = message.indexOf("\n", startPos);
+        if(endPos == -1)
+        {
+            endPos = message.length();
+        }
+        androidUrl = message.substring(startPos, endPos).trim();
+    }
+    
+    // Find ios URL
+    if(message.contains("ios:"))
+    {
+        startPos = message.indexOf("ios:") + 4;
+        endPos = message.indexOf("\n", startPos);
+        if(endPos == -1)
+        {
+            endPos = message.length();
+        }
+        iosUrl = message.substring(startPos, endPos).trim();
+    }
+    
+    // Find web URL
+    if(message.contains("web:"))
+    {
+        startPos = message.indexOf("web:") + 4;
+        endPos = message.indexOf("\n", startPos);
+        if(endPos == -1)
+        {
+            endPos = message.length();
+        }
+        webUrl = message.substring(startPos, endPos).trim();
+    }
+    
+    // Validate URLs
+    if(androidUrl == "" || iosUrl == "" || webUrl == "")
+    {
+        response.put("text", "Please provide all three URLs!");
+        return response;
+    }
+    
+    try
+    {
+        // Call the function to fetch and analyze
+        result = pixelcheck.fetchAndAnalyze(androidUrl, iosUrl, webUrl, user.get("id"), chat.get("id"));
+        return result;
+    }
+    catch (e)
+    {
+        response.put("text", "Error: " + e);
+        return response;
+    }
+}
+else if(msgLower.equals("help"))
+{
+    response.put("text", "PixelCheck Bot\n\nCommands:\n- start: Begin analysis\n- help: Show this\n\nProvide 3 Figma URLs to analyze!");
+}
+else
+{
+    response.put("text", "Hi! Type 'start' to begin!");
+}
+
+return response;
